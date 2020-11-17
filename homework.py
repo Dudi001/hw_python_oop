@@ -85,7 +85,7 @@ class CashCalculator(Calculator):
         spent_by_currency = round(abs(remainder_day) / rate, 2)
         
         if remainder_day > 0:
-            return (f'На сегодня осталось {remainder_day}'
+            return (f'На сегодня осталось {spent_by_currency}'
                 f' {currency_name}')
         else:
              return (f'Денег нет, держись: твой долг -'

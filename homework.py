@@ -76,10 +76,15 @@ class CashCalculator(Calculator):
             'eur': (self.EURO_RATE, 'Euro')
             }
         
+        #Обработка исключений.
+        if currency not in currencies: 
+            return f'Данная валюта {currency} не поддерживается.'
+
         remainder_day = self.day_remainder()
         
         if remainder_day == 0:
             return f'Денег нет, держись'
+        
         #Распаковываем словарь и округляем валюту до сотых.
         rate, currency_name = currencies[currency]
         spent_by_currency = round(abs(remainder_day) / rate, 2)
@@ -88,13 +93,11 @@ class CashCalculator(Calculator):
             return (f'На сегодня осталось {spent_by_currency}'
                 f' {currency_name}')
         else:
-             return (f'Денег нет, держись: твой долг -'
+             return (f'Денег нет, держись: твой долг - '
                     f'{spent_by_currency} {currency_name}')
 
 if __name__ == '__main__':
     pass
-
-        
         
 
 

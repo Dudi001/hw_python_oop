@@ -96,16 +96,15 @@ class CashCalculator(Calculator):
             return self.NO_CASH
          
         rate, currency_name = self.CURRENCIES[currency]
-        spent_by_currency = round(abs(remainder_day) / rate, 2)
-        debt_reaminder = round(remainder_day / rate, 2)
+        spent_by_currency = round(remainder_day / rate, 2)
         if remainder_day > 0:
             return self.CASH_REMAINS.format(
-                spent=debt_reaminder,
+                spent=spent_by_currency,
                 currency_name=currency_name
                 )
         else:
             return self.DEBT_CASH.format(
-                spent=spent_by_currency,
+                spent=abs(spent_by_currency),
                 currency_name=currency_name
                 )
 

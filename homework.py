@@ -1,7 +1,8 @@
 import datetime as dt
 
-#Данный класс служит для записи входных данных.
+
 class Record:
+    DATE_FORMAT = '%d.%m.%Y'
     def __init__(self, amount, comment, date=None):
         self.amount = amount
         self.comment = comment
@@ -9,13 +10,10 @@ class Record:
         if date is None:
             self.date = dt.date.today()
         else:
-            self.date = dt.datetime.strptime(date, '%d.%m.%Y').date()
+            self.date = dt.datetime.strptime(date, self.DATE_FORMAT).date()
 
 #Родительский класс.
-class Calculator:
-    deltime = dt.timedelta(days=7)
-    datenow = dt.datetime.now().date()
-    
+class Calculator: 
     def __init__(self, limit):
         self.limit = limit
         self.records = []
@@ -31,53 +29,50 @@ class Calculator:
     
     #Количество потраченных денег за сегодня.
     def get_today_stats(self):
-        cash_day = 0
-        
-        for i in self.records:
-            if i.date == self.datenow:
-                cash_day += i.amount
-        return cash_day
+        date_today = dt.date.today()
+        return sum(record.amount for record in self.records
+                   if record.date == date_today)
     
     #Расчет денег\калорий за последние 7 дней.
     def get_week_stats(self):
-        last_seven = self.datenow - self.deltime
-        seven_stats = 0
-        
-        for i in self.records:
-            if last_seven < i.date <= self.datenow:
-                seven_stats += i.amount
-        return seven_stats
+        date_today = dt.date.today()
+        week_delta = date_today - dt.timedelta(days=7)
+        return sum(record.amount for record in self.records
+                   if date_today >= record.date >= week_delta)
 
 #Калькулятор калорий.
 class CaloriesCalculator(Calculator):
     def __str__(self):
         return f"Лимит на сегодня {self.limit}."
     
+    TEXT_CALORIES = ("Сегодня можно съесть что-нибудь ещё, "
+                 "но с общей калорийностью не более {value} кКал") 
+    TEXT_2_CALORIES = "Хватит есть!"
+
     #Вывод количества калорий.
     def get_calories_remained(self):
         remainder_day = self.day_remainder()
-        
         if remainder_day > 0:
-            return (f"Сегодня можно съесть что-нибудь ещё, " 
-                f"но с общей калорийностью не более {remainder_day} кКал")
+            return self.TEXT_CALORIES.format(value=remainder_day)                
         else:
-            return f"Хватит есть!"
+            return self.TEXT_2_CALORIES
 
 #Калькулятор денег.
 class CashCalculator(Calculator):
-    RUB_RATE = 1.0
-    EURO_RATE = 91.3222
-    USD_RATE = 77.3262
+    RUB_RATE = float(1.0)
+    USD_RATE = float(60.0)
+    EURO_RATE = float(70.0)
     
+    CURRENCIES = {
+        'rub': (RUB_RATE, 'руб'),
+        'usd': (USD_RATE, 'USD'),
+        'eur': (EURO_RATE, 'Euro')
+    }
+
     #Конвертация валюты и условия вывода.
     def get_today_cash_remained(self, currency='rub'):
-        currencies = {'rub': (self.RUB_RATE, 'руб'),
-            'usd': (self.USD_RATE, 'USD'),
-            'eur': (self.EURO_RATE, 'Euro')
-            }
-        
         #Обработка исключений.
-        if currency not in currencies: 
+        if currency not in self.CURRENCIES: 
             return f'Данная валюта {currency} не поддерживается.'
 
         remainder_day = self.day_remainder()
@@ -86,8 +81,8 @@ class CashCalculator(Calculator):
             return f'Денег нет, держись'
         
         #Распаковываем словарь и округляем валюту до сотых.
-        rate, currency_name = currencies[currency]
-        spent_by_currency = round(abs(remainder_day) / rate, 2)
+        rate, currency_name = self.CURRENCIES[currency]
+        spent_by_currency = round(abs(remainder_day)/ rate, 2)
         
         if remainder_day > 0:
             return (f'На сегодня осталось {spent_by_currency}'
@@ -98,6 +93,4 @@ class CashCalculator(Calculator):
 
 if __name__ == '__main__':
     pass
-        
-
-
+      

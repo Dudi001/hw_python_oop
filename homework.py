@@ -36,26 +36,26 @@ class Calculator:
     #Расчет денег и калорий за последние 7 дней.
     def get_week_stats(self):
         date_today = dt.date.today()
-        week_delta = date_today - dt.timedelta(days=7)
+        week_delta = date_today - dt.timedelta(days=6)
         return sum(record.amount for record in self.records
                    if  week_delta <= record.date <= date_today)
 
 
 #Калькулятор калорий.
 class CaloriesCalculator(Calculator):  
-    TEXT_CALORIES = (
+    CALORIES = (
         "Сегодня можно съесть что-нибудь ещё, "
         "но с общей калорийностью не более {value} кКал"
         ) 
-    TEXT_2_CALORIES = "Хватит есть!"
+    STOP_CALORIES = "Хватит есть!"
 
     #Вывод количества калорий.
     def get_calories_remained(self):
         remainder_day = self.day_remainder()
         if remainder_day > 0:
-            return self.TEXT_CALORIES.format(value=remainder_day)                
+            return self.CALORIES.format(value=remainder_day)                
         else:
-            return self.TEXT_2_CALORIES
+            return self.STOP_CALORIES
 
 
 #Калькулятор денег.
@@ -69,16 +69,16 @@ class CashCalculator(Calculator):
         'usd': (USD_RATE, 'USD'),
         'eur': (EURO_RATE, 'Euro')
     }
-    TEXT_CASH_REMAINS = (
+    CASH_REMAINS = (
         "На сегодня осталось {spent} "
         "{currency_name}"
         )
-    TEXT_DEBT_CASH = (
+    DEBT_CASH = (
         "Денег нет, держись: твой долг - "
         "{spent} {currency_name}"
         )
-    TEX_NO_CASH = ("Денег нет, держись")
-    TEXT_NO_CURRENCY = (
+    NO_CASH = ("Денег нет, держись")
+    NO_CURRENCY = (
         "Данная валюта {no_currency} не поддерживается"
         )
     
@@ -86,24 +86,25 @@ class CashCalculator(Calculator):
     def get_today_cash_remained(self, currency='rub'):
         #Обработка исключений.
         if currency not in self.CURRENCIES: 
-            raise ValueError(self.TEXT_NO_CURRENCY.format(
+            raise ValueError(self.NO_CURRENCY.format(
                 no_currency=currency
                 ))
 
         remainder_day = self.day_remainder()
         
         if remainder_day == 0:
-            return self.TEX_NO_CASH
+            return self.NO_CASH
          
         rate, currency_name = self.CURRENCIES[currency]
         spent_by_currency = round(abs(remainder_day) / rate, 2)
+        debt_reaminder = round(remainder_day / rate, 2)
         if remainder_day > 0:
-            return self.TEXT_CASH_REMAINS.format(
-                spent=spent_by_currency,
+            return self.CASH_REMAINS.format(
+                spent=debt_reaminder,
                 currency_name=currency_name
                 )
         else:
-             return self.TEXT_DEBT_CASH.format(
+            return self.DEBT_CASH.format(
                 spent=spent_by_currency,
                 currency_name=currency_name
                 )

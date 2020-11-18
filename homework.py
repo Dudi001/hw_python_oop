@@ -71,12 +71,7 @@ class CashCalculator(Calculator):
 
     #Конвертация валюты и условия вывода.
     def get_today_cash_remained(self, currency='rub'):
-        #Обработка исключений.
-        if currency not in self.CURRENCIES: 
-            return f'Данная валюта {currency} не поддерживается.'
-
         remainder_day = self.day_remainder()
-        
         if remainder_day == 0:
             return f'Денег нет, держись'
         

@@ -41,10 +41,7 @@ class Calculator:
                    if date_today >= record.date >= week_delta)
 
 #Калькулятор калорий.
-class CaloriesCalculator(Calculator):
-    def __str__(self):
-        return f"Лимит на сегодня {self.limit}."
-    
+class CaloriesCalculator(Calculator):  
     TEXT_CALORIES = ("Сегодня можно съесть что-нибудь ещё, "
                  "но с общей калорийностью не более {value} кКал") 
     TEXT_2_CALORIES = "Хватит есть!"
@@ -68,23 +65,40 @@ class CashCalculator(Calculator):
         'usd': (USD_RATE, 'USD'),
         'eur': (EURO_RATE, 'Euro')
     }
-
+    TEXT_CASH_REMAINS = ("На сегодня осталось {spent}"
+                "{currency_name}")
+    TEXT_DEBT_CASH = ("Денег нет, держись: твой долг - "
+                    "{spent} {currency_name}")
+    TEX_NO_CASH = ("Денег нет, держись")
+    TEXT_NO_CURRENCY = ("Данная валюта {no_currency} не поддерживается")
+    
     #Конвертация валюты и условия вывода.
     def get_today_cash_remained(self, currency='rub'):
+        #Обработка исключений.
+        if currency not in self.CURRENCIES: 
+            raise ValueError(self.TEXT_NO_CURRENCY.format(
+            	no_currency=currency
+            	))
+
         remainder_day = self.day_remainder()
+        
         if remainder_day == 0:
-            return f'Денег нет, держись'
+            return self.TEX_NO_CASH
         
         #Распаковываем словарь и округляем валюту до сотых.
         rate, currency_name = self.CURRENCIES[currency]
-        spent_by_currency = round(abs(remainder_day)/ rate, 2)
+        spent_by_currency = round(remainder_day/ rate, 2)
         
         if remainder_day > 0:
-            return (f'На сегодня осталось {spent_by_currency}'
-                f' {currency_name}')
+            return self.TEXT_CASH_REMAINS.format(
+            	spent=spent_by_currency,
+            	currency_name=currency_name
+            	)
         else:
-             return (f'Денег нет, держись: твой долг - '
-                    f'{spent_by_currency} {currency_name}')
+             return self.TEXT_DEBT_CASH.format(
+             	spent=spent_by_currency,
+            	currency_name=currency_name
+            	)
 
 if __name__ == '__main__':
     pass

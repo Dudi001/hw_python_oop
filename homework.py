@@ -110,3 +110,6 @@ class CashCalculator(Calculator):
 
 if __name__ == '__main__':
     pass
+
+def just_a_check():
+    pass

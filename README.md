@@ -1,2 +1,2 @@
-# hw_python_oop
-Sprint 2. Итоговый проект.
+# python_oop
+This my first project, I tested oop in python 
